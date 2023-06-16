@@ -1,0 +1,158 @@
+﻿using AutoMapper;
+using Azure;
+using Mango.Services.CouponAPI.Data;
+using Mango.Services.CouponAPI.Models;
+using Mango.Services.CouponAPI.Models.Dto;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Reflection.Metadata.Ecma335;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace Mango.Services.CouponAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CouponAPIController : ControllerBase
+    {
+        private readonly ApplicationDBContext _dBContext;
+        private ResponseDto _response;
+        private readonly IMapper _mapper;
+        public CouponAPIController(ApplicationDBContext dBContext, IMapper mapper) 
+        { 
+            _response= new ResponseDto();
+            _dBContext = dBContext;
+            _mapper = mapper;
+        }
+        // GET: api/<CouponAPIController>
+        [HttpGet]
+        public ActionResult<ResponseDto> Get()
+        {
+            try
+            {
+              _response.Result=  _mapper.Map<IEnumerable<CouponDto>>(_dBContext.Coupons.ToList());
+               return _response;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest.ToString();
+                _response.Error =  ex.Message.ToString();
+                return _response;
+            }
+        }
+
+        // GET api/<CouponAPIController>/
+        [HttpGet("{id}")]
+        public ActionResult<ResponseDto> Get(int id)
+        {
+             var coupon= _dBContext.Coupons.FirstOrDefault(u=>u.CouponId==id);
+            _response.Result= _mapper.Map<CouponDto>(coupon);
+            return _response;
+        }
+
+
+        // GET api/<CouponAPIController>/
+        [HttpGet("CouponCode")]
+        public ActionResult<ResponseDto> GetByCode(string CouponCode)
+        {
+            try
+            {
+                var coupon = _dBContext.Coupons.FirstOrDefault(u => u.CouponCode.ToLower() == CouponCode.ToLower());
+                if (coupon == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Error = "No Such Coupon exists";
+                }
+                _response.Result = _mapper.Map<CouponDto>(coupon);
+                return _response;
+            }
+            catch(Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Error= ex.Message.ToString();
+                return _response;
+            }
+        }
+
+        // POST api/<CouponAPIController>
+        [HttpPost]
+        public ResponseDto Post(CouponDto couponDto)
+        {
+            try
+            {
+                if (couponDto == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Error = "Enter some valid values";
+                    return _response;
+                }
+
+                _dBContext.Coupons.Add(_mapper.Map<Coupon>(couponDto));
+                _dBContext.SaveChanges();
+                _response.Result = couponDto;
+                return _response;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Error=ex.Message.ToString();
+                return _response;
+            }
+        }
+
+        // PUT api/<CouponAPIController>/5
+        [HttpPut("{id}")]
+        public ResponseDto Put(int id, [FromBody] CouponDto couponDto)
+        {
+            try
+            {
+                if (id < 0 && couponDto.CouponId != id)
+                {
+                    _response.IsSuccess = false;
+                    _response.Error = "Please enter valid data";
+                    return _response;
+                }
+                _dBContext.Coupons.Update(_mapper.Map<Coupon>(couponDto));
+                _dBContext.SaveChanges();
+                _response.Result= couponDto;
+                return _response;
+            }
+            catch(Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Error = ex.Message.ToString();
+                return _response;
+            }
+        }
+
+        // DELETE api/<CouponAPIController>/5
+        [HttpDelete("{id}")]
+        public ResponseDto Delete(int id)
+        {
+            try
+            {
+                if (id < 0 )
+                {
+                    _response.IsSuccess = false;
+                    _response.Error = "Please enter valid Id";
+                    return _response;
+                }
+                var data=_dBContext.Coupons.FirstOrDefault(u=>u.CouponId==id);
+                if (data!=null)
+                {
+                    _dBContext.Coupons.Remove(data);
+                    _dBContext.SaveChanges();
+                    _response.Result = _mapper.Map<CouponDto>(data );
+                }
+                return _response;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Error = ex.Message.ToString();
+                return _response;
+            }
+        }
+    }
+}
