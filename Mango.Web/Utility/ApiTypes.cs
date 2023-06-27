@@ -1,10 +1,15 @@
 ﻿namespace Mango.Web.Utility
 {
-    public enum ApiTypes
+    public class SD
     {
-        GET,
-        POST,
-        PUT,
-        DELETE
+        public static string CouponAPIBaseUrl { get; set; }
+
+        public enum ApiTypes
+        {
+            GET,
+            POST,
+            PUT,
+            DELETE
+        }
     }
 }
