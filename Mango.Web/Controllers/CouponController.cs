@@ -1,5 +1,6 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,6 +17,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
+
         public async Task<IActionResult> CouponIndex()
         {
             try
@@ -39,12 +41,14 @@ namespace Mango.Web.Controllers
             }
         }
 
+        [Authorize()]
         public async Task<IActionResult> CreateCoupon()
         {
             return View();
         }
 
         [HttpPost]
+       
         public async Task<IActionResult> CreateCoupon(CouponDto couponDto)
         {
             try
@@ -70,7 +74,8 @@ namespace Mango.Web.Controllers
             }
         }
 
-		public async Task<IActionResult> RemoveCoupon(int couponId)
+        [Authorize()]
+        public async Task<IActionResult> RemoveCoupon(int couponId)
 		{
             try
             {
