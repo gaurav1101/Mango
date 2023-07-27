@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Mango.Web.Utility;
 
 namespace Mango.Web.Controllers
 {
@@ -30,45 +32,62 @@ namespace Mango.Web.Controllers
         {
             var user= await _authService.LoginAsync(loginRequestDto);
             var loginResponseDto = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(user.Result));
-            var handler = new JwtSecurityTokenHandler();
+            
             try
             {
-                var jwt = handler.ReadJwtToken(loginResponseDto.token);
-
-                //To enable auth , after program.cs use below code
-                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                //identity.AddClaim(new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(u => u.Type == "unique_name").Value));
-                //identity.AddClaim(new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
-                var principal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                 if (loginResponseDto != null)
                 {
                     return RedirectToAction("CouponIndex", "Coupon");
                 }
-                return View();
+
+                ModelState.AddModelError("CustomError", user.Error.ToString());
+                return View(loginRequestDto);
             }
             catch(Exception ex)
             {
-                return View();
+                ModelState.AddModelError("CustomError", user.Error.ToString());
+                return View(loginRequestDto);
             }
         }
 
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            var roleList = new List<SelectListItem>
+            {
+                new SelectListItem{ Text=SD.RoleAdmin, Value = SD.RoleAdmin },
+                new SelectListItem{ Text=SD.RoleCostumer, Value= SD.RoleCostumer}
+            };
+            ViewBag.RoleList = roleList;
+                return View();
         }
 
         [HttpPost]
         // GET: AuthController/Details/5
-        public IActionResult Register(RegisterationRequestDto registerationRequestDto)
+        public async Task<IActionResult> Register(RegisterationRequestDto registerationRequestDto)
         {
             var user= _authService.RegisterAsync(registerationRequestDto);
-            if (user != null)
+            
+            if (user != null && user.Result.IsSuccess)
             {
-                return RedirectToAction("Login");
+                if (string.IsNullOrEmpty(registerationRequestDto.Role))
+                {
+                    registerationRequestDto.Role=SD.RoleCostumer;
+                }
+                var assignRole = _authService.AssignRoleAsync(registerationRequestDto);
+                if (assignRole.Result != null && assignRole.Result.IsSuccess)
+                {
+                    TempData["Success"] = "Registration Successfull";
+                }
+                return RedirectToAction(nameof(Login));
             }
-            return View();
+            var roleList = new List<SelectListItem>
+            {
+                new SelectListItem{ Text=SD.RoleAdmin, Value = SD.RoleAdmin },
+                new SelectListItem{ Text=SD.RoleCostumer, Value= SD.RoleCostumer}
+            };
+            ViewBag.RoleList = roleList;
+            return View(registerationRequestDto);
         }
 
 

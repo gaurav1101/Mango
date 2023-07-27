@@ -47,6 +47,11 @@ namespace Mango.Services.CouponAPI.Controllers
         public ActionResult<ResponseDto> Get(int id)
         {
              var coupon= _dBContext.Coupons.FirstOrDefault(u=>u.CouponId==id);
+            if(coupon==null)
+            {
+                _response.IsSuccess = false;
+                _response.Error = "No Such coupon exists";
+            }
             _response.Result= _mapper.Map<CouponDto>(coupon);
             return _response;
         }
@@ -132,7 +137,7 @@ namespace Mango.Services.CouponAPI.Controllers
         {
             try
             {
-                if (id < 0 )
+                if (id <= 0 )
                 {
                     _response.IsSuccess = false;
                     _response.Error = "Please enter valid Id";

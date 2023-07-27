@@ -80,20 +80,23 @@ namespace Mango.Services.AuthAPI.Services
                 {
                     //if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult())
                     //{
-                    //    //await _roleManager.CreateAsync(new IdentityRole("admin"));
-                    //    //await _roleManager.CreateAsync(new IdentityRole("customer"));
+                    //    await _roleManager.CreateAsync(new IdentityRole("admin"));
+                    //    await _roleManager.CreateAsync(new IdentityRole("customer"));
                     //}
-                   // await _userManager.AddToRoleAsync(_user, "admin");
                     var userReturn = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == _user.UserName.ToLower());
-                    UserDto userDto = new()
+                    if (userReturn!=null)
                     {
-                        Email = userReturn.Email,
-                        Name = userReturn.Name,
-                        PhoneNumber = userReturn.PhoneNumber,
-                        
-                    };
-                    
-                    return userDto;
+                        UserDto userDto = new()
+                        {
+                            Email = userReturn.Email,
+                            Name = userReturn.Name,
+                            PhoneNumber = userReturn.PhoneNumber,
+
+                        };
+
+                        return userDto;
+                    }
+                    return new UserDto();
                 }
             }
             catch (Exception ex)
