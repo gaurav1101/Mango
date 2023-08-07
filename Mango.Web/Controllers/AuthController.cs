@@ -42,10 +42,11 @@ namespace Mango.Web.Controllers
                     var loginResponseDto = JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(user.Result));
                     await SignInUser(loginResponseDto);
                     _tokenProvider.setToken(loginResponseDto.token); // Set token value in the cookies
+                    TempData["Success"] = "Log-In Successfull";
                     return RedirectToAction("CouponIndex", "Coupon");
                 }
-
-                ModelState.AddModelError("CustomError", user.Error.ToString());
+                TempData["Error"] = user.Error.ToString();
+              //  ModelState.AddModelError("CustomError", user.Error.ToString());
                 return View(loginRequestDto);
             }
             catch(Exception ex)
