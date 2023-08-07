@@ -23,17 +23,17 @@ namespace Mango.Services.AuthAPI.Controllers
         public async Task<IActionResult> Register(RegisterationRequestDto registerationRequestDto)
         {
             var user = await _authService.Register(registerationRequestDto);
-            if (user != null)
+            if (user.Result != null)
             {
                 _response.StatusCode = HttpStatusCode.OK.ToString();
-                _response.Result = registerationRequestDto;
+                _response.Result = user.Result;
                 _response.IsSuccess = true;
                 return Ok(_response);
                
             }
-            _response.Error = "Invalid User";
+            _response.Error = user.Error;
             _response.IsSuccess = false;
-            return BadRequest(_response);
+            return Ok(_response);
 
         }
 
@@ -46,7 +46,7 @@ namespace Mango.Services.AuthAPI.Controllers
             {
                 _response.Error = "Username or Password is incorrect" ;
                 _response.IsSuccess = false;
-                return BadRequest(_response);
+                return Ok(_response);
             }
             _response.StatusCode = HttpStatusCode.OK.ToString();
             _response.Result = loginUser;

@@ -38,34 +38,34 @@ namespace Mango.Services.AuthAPI.Services
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
             var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.Username.ToLower());
-            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
-            var roles= await _userManager.GetRolesAsync(user);
-
-            if (user == null && !isValid)
+            if(user != null )
             {
+                bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+                var roles = await _userManager.GetRolesAsync(user);
+                LoginResponseDto loginResponseDto = new()
+                {
+                    User = new()
+                    {
+
+                        Email = user.Email,
+                        Name = user.Name,
+                    },
+                    token = _jwtTokenGenerator.GenerateToken(user, roles)
+
+                };
+                return loginResponseDto;
+            }
                 LoginResponseDto loginResponse1 = new LoginResponseDto
                 {
                     token = "",  //to convert token to string
                     User = null
                 };
                 return loginResponse1;
-            }
-            LoginResponseDto loginResponseDto = new()
-            {
-                User = new()
-                {
-
-                    Email = user.Email,
-                    Name = user.Name,
-                },
-                token = _jwtTokenGenerator.GenerateToken(user, roles)
-                 
-            };
-            return loginResponseDto;
         }
 
-        public async Task<UserDto> Register(RegisterationRequestDto registerationRequestDto)
+        public async Task<ResponseDto> Register(RegisterationRequestDto registerationRequestDto)
         {
+            ResponseDto responseDto = new ResponseDto();
             ApplicationUser _user =
                    _user = new ApplicationUser
                    {
@@ -85,27 +85,31 @@ namespace Mango.Services.AuthAPI.Services
                     //    await _roleManager.CreateAsync(new IdentityRole("customer"));
                     //}
                     var userReturn = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == _user.UserName.ToLower());
-                    if (userReturn!=null)
+                    if (userReturn != null)
                     {
-                        UserDto userDto = new()
+                        responseDto = new()
                         {
-                            Email = userReturn.Email,
-                            Name = userReturn.Name,
-                            PhoneNumber = userReturn.PhoneNumber,
-
+                            Result = userReturn
                         };
-
-                        return userDto;
+                    return responseDto;
                     }
-                    return new UserDto();
                 }
+                else
+                {
+                    responseDto = new ResponseDto()
+                    {
+                        Error = response.Errors.First().Description,
+                        IsSuccess = false
+                    };
+                    return responseDto;
+                }
+                
             }
             catch (Exception ex)
             {
 
             }
-            UserDto user = new();
-            return user;
+            return responseDto;
         }
     }
 }

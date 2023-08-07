@@ -86,6 +86,10 @@ namespace Mango.Web.Controllers
                 }
                 return RedirectToAction(nameof(Login));
             }
+            else
+            {
+                TempData["Error"] = user.Result.Error;
+            }
             var roleList = new List<SelectListItem>
             {
                 new SelectListItem{ Text=SD.RoleAdmin, Value = SD.RoleAdmin },
