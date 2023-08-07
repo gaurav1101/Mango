@@ -6,7 +6,7 @@ namespace Mango.Web.Services
 {
     public class TokenProvider:ITokenProvider
     {
-        private IHttpContextAccessor _contextAccessor;
+        private readonly IHttpContextAccessor _contextAccessor;
         public TokenProvider(IHttpContextAccessor httpContextAccessor) 
         { 
             _contextAccessor = httpContextAccessor;

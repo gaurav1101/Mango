@@ -16,17 +16,18 @@ namespace Mango.Services.AuthAPI.Services
         {
             _jwtOptions = jwtOptions.Value;
         }
-        public string GenerateToken(ApplicationUser applicationUser)
+        public string GenerateToken(ApplicationUser applicationUser,IEnumerable<string> roles)
         {
             var tokenhandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
             var claims = new List<Claim>
             {
-               new Claim(JwtRegisteredClaimNames.Email,applicationUser.Email ) ,
+               new Claim(JwtRegisteredClaimNames.Email,applicationUser.Email) ,
                new Claim(JwtRegisteredClaimNames.Sub,applicationUser.Id ),
                new Claim(JwtRegisteredClaimNames.Name,applicationUser.UserName )//need key and values per claim
-                    
             };
+            claims.AddRange(roles.Select(role=> new Claim(ClaimTypes.Role,role))); //to add roles in token
+
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Audience = _jwtOptions.Audience,
