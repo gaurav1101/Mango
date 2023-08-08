@@ -17,7 +17,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
-
+        
         public async Task<IActionResult> CouponIndex()
         {
             try
@@ -29,11 +29,9 @@ namespace Mango.Web.Controllers
                     couponDtos = JsonConvert.DeserializeObject<List<CouponDto>>(coupons.Result.ToString());
                     return View(couponDtos);
                 }
-                else
-                {
-                    TempData["error"] = _response.Error;
-                }
-                return View(coupons);
+                TempData["error"] = coupons.Error.ToString();
+                couponDtos = new List<CouponDto>();
+				return View(couponDtos);
             }
             catch (Exception ex)
             {

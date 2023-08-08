@@ -53,24 +53,40 @@ namespace Mango.Web.Services
                         return new ResponseDto()
                         {
                             IsSuccess = false,
-                            Result = new ResponseDto(),
-                        }; 
+                            Result = new CouponDto(),
+							Error = httpResponse.StatusCode.ToString()
+						}; 
                     case HttpStatusCode.BadRequest:
                         return new ResponseDto()
                         {
                             IsSuccess = false,
-                            Result = new ResponseDto(),
-                        };
+                            Result = new CouponDto(),
+							Error = httpResponse.StatusCode.ToString()
+						};
+                    case HttpStatusCode.Unauthorized:
+                        return new ResponseDto()
+                        {
+                            IsSuccess = false,
+                            Result = new CouponDto(),
+                            Error= httpResponse.StatusCode.ToString()
+						};
                         
                     default:
                         var api = await httpResponse.Content.ReadAsStringAsync();
                         ResponseDto responseDto= JsonConvert.DeserializeObject<ResponseDto>(api);
-                        if(!string.IsNullOrEmpty(responseDto.Error))
+                        if (responseDto != null)
                         {
-                            responseDto.IsSuccess = false;
+                            if (!string.IsNullOrEmpty(responseDto.Error))
+                            {
+                                responseDto.IsSuccess = false;
+                                return responseDto;
+                            }
                             return responseDto;
                         }
-                        return responseDto;
+                        else
+                        {
+                            return new ResponseDto();
+                        }
                 }
             }
             catch (Exception ex)
