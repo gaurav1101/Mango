@@ -13,12 +13,14 @@ namespace Mango.Web.Services
     public class BaseService : IBaseService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public BaseService(IHttpClientFactory httpClientFactory) 
+		private readonly ITokenProvider _tokenProvider;
+		public BaseService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider) 
         {
             _httpClientFactory = httpClientFactory;
+            _tokenProvider = tokenProvider;
         }
 
-        public async Task<ResponseDto?> sendAsync(RequestDto apirequest)
+        public async Task<ResponseDto?> sendAsync(RequestDto apirequest, bool withBearer)
         {
             try
             {
@@ -26,6 +28,12 @@ namespace Mango.Web.Services
                 HttpRequestMessage httpRequest = new HttpRequestMessage();
                 httpRequest.Headers.Add("Accept", "application/json");
                 httpRequest.RequestUri = new Uri(apirequest.url);
+                if(withBearer)
+                {
+                    var token=_tokenProvider.getToken();
+					httpRequest.Headers.Add("Authorization", $"Bearer {token}");
+				}
+
                 if (apirequest.Data != null)
                 {
                     httpRequest.Content = new StringContent(JsonConvert.SerializeObject(apirequest.Data), Encoding.UTF8, "application/json");

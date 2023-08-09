@@ -43,7 +43,7 @@ namespace Mango.Web.Services
                 ApiType = SD.ApiTypes.GET,
                 url = SD.CouponAPIBaseUrl + "/api/CouponAPI",
                 token = ""
-            });
+			});
         }
 
         public async Task<ResponseDto> AddCouponAsync(CouponDto couponDto)

@@ -9,11 +9,13 @@ namespace Mango.Web.Controllers
     public class CouponController : Controller
     {
         private readonly ICouponService _couponService;
-        ResponseDto _response;
+		private readonly ITokenProvider _tokenProvider;
+		ResponseDto _response;
         public CouponController(ICouponService couponService)
         {
             _couponService = couponService;
              _response = new ResponseDto();
+            
         }
 
         [HttpGet]
@@ -22,7 +24,8 @@ namespace Mango.Web.Controllers
         {
             try
             {
-                IEnumerable<CouponDto> couponDtos;
+                
+				IEnumerable<CouponDto> couponDtos;
                 var coupons = await _couponService.GetAllCouponsAsync();
                 if (coupons.IsSuccess && coupons.Result != null)
                 {
