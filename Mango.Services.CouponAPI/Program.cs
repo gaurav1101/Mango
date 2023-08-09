@@ -1,6 +1,7 @@
 using AutoMapper;
 using Mango.Services.CouponAPI;
 using Mango.Services.CouponAPI.Data;
+using Mango.Services.CouponAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -17,30 +18,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option=>option.AddSecurityRequirement(new OpenApiSecurityRequirement()));
-
-//changes to be for to implement Authentication of any API
-var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
-var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
-var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
-
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(x => {
-        x.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-            ValidateIssuer = true,
-            ValidIssuer= issuer,
-            ValidateAudience = true,
-            ValidAudience= audience
-        };
-    });
-/////
-///
+builder.Services.AddAuthorization();
+builder.AddAppAuthentication();
 //By default steps To add authentication in Swagger API 
 
 builder.Services.AddSwaggerGen(options =>

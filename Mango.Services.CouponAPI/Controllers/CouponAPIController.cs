@@ -84,6 +84,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         // POST api/<CouponAPIController>
         [HttpPost]
+        [Authorize("ADMIN")]
         public ResponseDto Post(CouponDto couponDto)
         {
             try
@@ -135,7 +136,8 @@ namespace Mango.Services.CouponAPI.Controllers
 
         // DELETE api/<CouponAPIController>/5
         [HttpDelete("{id}")]
-        public ResponseDto Delete(int id)
+		[Authorize("ADMIN")]
+		public ResponseDto Delete(int id)
         {
             try
             {
