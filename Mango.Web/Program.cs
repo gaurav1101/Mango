@@ -13,9 +13,11 @@ builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddHttpClient<IBaseService,BaseService>();
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 Mango.Web.Utility.SD.CouponAPIBaseUrl = builder.Configuration["ServiceUrls:CouponAPI"];
 Mango.Web.Utility.SD.AuthAPIBaseUrl = builder.Configuration["ServiceUrls:AuthAPI"];
+Mango.Web.Utility.SD.ProductAPIBaseUrl = builder.Configuration["ServiceUrls:ProductAPI"];
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
