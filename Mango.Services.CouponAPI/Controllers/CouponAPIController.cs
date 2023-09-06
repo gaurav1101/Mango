@@ -14,7 +14,7 @@ namespace Mango.Services.CouponAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CouponAPIController : ControllerBase
     {
         private readonly ApplicationDBContext _dBContext;
@@ -60,7 +60,8 @@ namespace Mango.Services.CouponAPI.Controllers
 
 
         // GET api/<CouponAPIController>/
-        [HttpGet("CouponCode")]
+        [HttpGet]
+        [Route("GetByCode/{CouponCode}")]
         public ActionResult<ResponseDto> GetByCode(string CouponCode)
         {
             try

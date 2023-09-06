@@ -18,7 +18,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 Mango.Web.Utility.SD.CouponAPIBaseUrl = builder.Configuration["ServiceUrls:CouponAPI"];
 Mango.Web.Utility.SD.AuthAPIBaseUrl = builder.Configuration["ServiceUrls:AuthAPI"];
 Mango.Web.Utility.SD.ProductAPIBaseUrl = builder.Configuration["ServiceUrls:ProductAPI"];
-
+Mango.Web.Utility.SD.ShoppingCartAPIBaseUrl = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
               {
