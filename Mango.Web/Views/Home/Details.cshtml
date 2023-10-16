@@ -1,5 +1,7 @@
 ﻿@model Mango.Web.Models.Dto.ProductDto
 <form method="post">
+    <input asp-for="@Model.ProductId" hidden />
+    
     <div class=" pt-4">
         <div class="card container" style="border:1px solid #808080;">
             <div class="card-header bg-dark text-light row" style="border-radius: 0px;">
@@ -37,7 +39,7 @@
                     <a asp-action="ProductIndex" asp-controller="Product" class="btn btn-success btn-square form-control btn-lg" style="height:50px;">Back to List</a>
                 </div>
                 <div class="col-12 col-md-6 ">
-                    <button type="submit" class="btn btn-primary form-control btn-lg" style="height:50px;">Add to Cart</button>
+                    <button type="submit" asp-controller="Home" asp-action="AddProduct" asp-route-count="@Model.count" class="btn btn-primary form-control btn-lg" style="height:50px;">Add to Cart</button>
                 </div>
             </div>
         </div>
@@ -47,3 +49,5 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+
