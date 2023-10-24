@@ -37,8 +37,8 @@ namespace Mango.Web.Services
             return await _baseService.sendAsync(new Models.Dto.RequestDto()
             {
                 ApiType = SD.ApiTypes.DELETE,
-                Data = "",
-                url = SD.ShoppingCartAPIBaseUrl + "/api/ShoppingCartAPI/" + cartDetailsId,
+                Data = cartDetailsId,
+                url = SD.ShoppingCartAPIBaseUrl + "/api/ShoppingCartAPI/RemoveCart/" 
             });
         }
 
@@ -52,13 +52,13 @@ namespace Mango.Web.Services
             });
         }
 
-        public async Task<ResponseDto> EmailCartAsync(CartDto cartDto)
+        public async Task<ResponseDto> EmailCartRequest(CartDto cartDto)
         {
             return await _baseService.sendAsync(new Models.Dto.RequestDto()
             {
                 ApiType = SD.ApiTypes.POST,
                 Data = cartDto,
-                url = SD.ShoppingCartAPIBaseUrl + "/api/ShoppingCartAPI/EmailCart",//https://localhost:7003/api/ShoppingCartAPI/EmailCart
+                url = SD.ShoppingCartAPIBaseUrl + "/api/ShoppingCartAPI/EmailCartRequest",//https://localhost:7003/api/ShoppingCartAPI/EmailCart
             });
         }
     }

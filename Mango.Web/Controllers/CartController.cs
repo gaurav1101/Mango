@@ -3,6 +3,7 @@ using Mango.Web.Models;
 using Mango.Web.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -32,55 +33,60 @@ namespace Mango.Web.Controllers
             if (responseDto.Result != null)
             {
                 CartDto response=JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
-                TempData["Success"] = "Item added to cart";
+                TempData["Success"] = "Cart Loaded";
                 return response;
             }
             return new CartDto();
         }
 
         [HttpPost]
-        public async Task<CartDto> ApplyCoupon(CartDto cartDto)
+        public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
         {
-             cartDto = new CartDto
-            {
-                CartHeaderDto = new Mango.Web.Models.CartHeaderDto
-                {
-                    CouponCode = cartDto.CartHeaderDto.CouponCode,
-                    UserId = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value,
-                     CartHeaderId=cartDto.CartHeaderDto.CartHeaderId
-                     
-                }
-            };
-            var responseDto = await _shoppingCartService.ApplyCouponAsync(cartDto);
+            var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+           var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
+            var data = JsonConvert.DeserializeObject<CartDto>(detailsTosend.Result.ToString());
+            var responseDto = await _shoppingCartService.ApplyCouponAsync(data);
             if (responseDto != null)
             {
                 CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
-                TempData["Success"] = "Item added to cart";
-                return response;
+                TempData["Success"] = "Discount Coupon Applied";
+                return View("CartIndex", data);
             }
-            return new CartDto();
+            return View("CartIndex", data);
         }
 
-        //[HttpPost]
+        [HttpPost]
         [Authorize]
-        public async Task<CartDto> EmailCartRequest(CartDto cartDto)
+        public async Task<IActionResult> EmailCartRequest(CartDto cartDto)
         {
-            var responseDto=_shoppingCartService.EmailCartAsync(cartDto);
-            if(responseDto != null)
+            try
             {
-                CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
-                TempData["Success"] = "Email sent ";
-                return response;
+                var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+                var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
+                var data=JsonConvert.DeserializeObject<CartDto>(detailsTosend.Result.ToString());
+                var responseDto =await _shoppingCartService.EmailCartRequest(data);
+                if (responseDto.Result != null)
+                {
+                    CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
+                    TempData["Success"] = "Email sent ";
+                    return View("CartIndex", data);
+                }
+                TempData["Error"] = "Email not sent ";
+                return View("CartIndex", data);
             }
-            TempData["Error"] = "Email not sent ";
-            return new CartDto();
+           catch (Exception ex)
+            {
+                var exc = ex.Message;
+                TempData["Error"] = exc;
+                return  View(nameof(CartIndex));
+            }
         }
 
         public async Task<IActionResult> Remove(int carDetailsId)
         {
             var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
             var responseDto = await _shoppingCartService.RemoveFromCartAsync(carDetailsId);
-            if (responseDto != null)
+            if (responseDto.Result != null)
             {
                 CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
                 TempData["Success"] = "Item Removed from your cart";

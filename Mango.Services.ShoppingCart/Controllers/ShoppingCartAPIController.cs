@@ -18,7 +18,7 @@ namespace Mango.Services.CouponAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   [Authorize]
+  // [Authorize]
     public class ShoppingCartAPIController : ControllerBase
     {
         private readonly ApplicationDBContext _dBContext;
@@ -87,17 +87,19 @@ namespace Mango.Services.CouponAPI.Controllers
             cartHeaderFromDb.CouponCode = cartDto.CartHeaderDto.CouponCode;
             _dBContext.CartHeaders.Update(cartHeaderFromDb);
             await _dBContext.SaveChangesAsync();
-            _response.Result = true;
+            _response.Result = cartDto;
             return _response;
         }
 
 
-        [HttpPost("EmailCart")]
+        [HttpPost("EmailCartRequest")]
         //[Authorize]
         public async Task<object> EmailCartRequest([FromBody]CartDto cartDto)
         {
             await _messageBus.publishMessage(cartDto, _configuration.GetValue<string>("ServiceBusConfig:ServiecBusName"));
-            return new CartDto();
+             _response.Result = new CartDto();
+            _response.IsSuccess = true;
+            return _response;
         }
 
 
@@ -182,14 +184,20 @@ namespace Mango.Services.CouponAPI.Controllers
         {
             var cartDetail = _dBContext.CartDetails.First(u => u.CartDetailsId == cartDetailsId);
             int cartDetailsCount= _dBContext.CartDetails.Where(u => u.CartHeaderId == cartDetail.CartHeaderId).Count();
-            _dBContext.Remove(cartDetail);
+            //
             if(cartDetailsCount == 1)
             {
                 var cartHeader=_dBContext.CartHeaders.First(u=>u.CartHeaderId==cartDetail.CartHeaderId);
                 _dBContext.CartHeaders.Remove(cartHeader);
+                await _dBContext.SaveChangesAsync();
+                _response.IsSuccess = true;
+                _response.Result = cartDetail;
+                return _response;
             }
+            _dBContext.Remove(cartDetail);
             await _dBContext.SaveChangesAsync();
             _response.IsSuccess = true;
+            _response.Result = cartDetail;
             return _response;
         }
     }

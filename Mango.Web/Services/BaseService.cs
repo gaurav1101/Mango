@@ -64,13 +64,13 @@ namespace Mango.Web.Services
                             Result = new CouponDto(),
 							Error = httpResponse.StatusCode.ToString()
 						}; 
-                    case HttpStatusCode.BadRequest:
-                        return new ResponseDto()
-                        {
-                            IsSuccess = false,
-                            Result = new CouponDto(),
-							Error = httpResponse.StatusCode.ToString()
-						};
+      //              case HttpStatusCode.BadRequest:
+      //                  return new ResponseDto()
+      //                  {
+      //                      IsSuccess = false,
+      //                      Result = new CouponDto(),
+						//	Error = httpResponse.StatusCode.ToString()
+						//};
                     case HttpStatusCode.Unauthorized:
                         return new ResponseDto()
                         {

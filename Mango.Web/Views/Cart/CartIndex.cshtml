@@ -1,7 +1,7 @@
 ﻿@model CartDto
 @if (Model.CartHeaderDto!=null && Model.CartDetailsDtos.Count()>0)
 {
-    <form method="post" asp-action="EmailCartRequest">
+    <form method="post" asp-action="EmailCartRequest" asp-controller="Cart">
     <input asp-for="CartHeaderDto.CartHeaderId" hidden />
     <br />
     <div class="">
@@ -72,7 +72,7 @@
             </div>
             <div class="card-footer row">
                 <div class="col-6 col-md-3 ">
-                        <button type="submit"  class="btn btn-outline-danger form-control">Email Cart</button>
+                        <button type="submit"  class="btn btn-outline-danger form-control" value="Submit">Email Cart</button>
                 </div>
                 <div class="col-6 col-md-3 offset-md-6">
                     <button disabled class="btn btn-success form-control ">Checkout (Comming Soon!) </button>
