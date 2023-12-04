@@ -96,6 +96,8 @@ namespace Mango.Services.CouponAPI.Controllers
         //[Authorize]
         public async Task<object> EmailCartRequest([FromBody]CartDto cartDto)
         {
+            CartHeaderDto cartHeaderDto = _mapper.Map<CartHeaderDto>(_dBContext.CartHeaders.FirstOrDefault(u => u.UserId == cartDto.CartHeaderDto.UserId));
+            cartDto.CartHeaderDto.Email = cartHeaderDto.Email;
             await _messageBus.publishMessage(cartDto, _configuration.GetValue<string>("ServiceBusConfig:ServiecBusName"));
              _response.Result = new CartDto();
             _response.IsSuccess = true;

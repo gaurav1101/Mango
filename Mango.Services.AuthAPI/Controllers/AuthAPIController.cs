@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Mango.ServiceBus;
 using Mango.Services.AuthAPI.Models.Dto;
 using Mango.Services.AuthAPI.Services.IServices;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +14,13 @@ namespace Mango.Services.AuthAPI.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ResponseDto _response;
-        public AuthAPIController(IAuthService authService)
+        private readonly IMessageBus _messageBus;
+        private readonly IConfiguration _configuration;
+        public AuthAPIController(IAuthService authService, IMessageBus messageBus,IConfiguration configuration)
         {
             _authService = authService;
+            _messageBus = messageBus;
+            _configuration= configuration;
             _response = new ResponseDto();
         }
 
@@ -25,6 +30,7 @@ namespace Mango.Services.AuthAPI.Controllers
             var user = await _authService.Register(registerationRequestDto);
             if (user.Result != null)
             {
+                await _messageBus.publishMessage("Test Email", _configuration.GetValue<string>("ServiceBusConfig:ServiecBusName"));
                 _response.StatusCode = HttpStatusCode.OK.ToString();
                 _response.Result = user.Result;
                 _response.IsSuccess = true;
