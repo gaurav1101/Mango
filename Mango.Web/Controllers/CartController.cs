@@ -29,6 +29,9 @@ namespace Mango.Web.Controllers
         public async Task<CartDto> LoadCartDtoBasedOnLoggedInUser()
         {
             var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+            //var email = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
+            //var name = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Name)?.FirstOrDefault()?.Value;
+            //var phone
             var responseDto = await _shoppingCartService.GetCartByUserIdAsync(user);
             if (responseDto.Result != null)
             {
@@ -40,7 +43,7 @@ namespace Mango.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
+        public async Task<IActionResult> ApplyCoupon(string coupon)
         {
             var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
            var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
@@ -62,8 +65,10 @@ namespace Mango.Web.Controllers
             try
             {
                 var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+                var userEmail=User.Claims.Where(u=>u.Type== JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
                 var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
                 var data=JsonConvert.DeserializeObject<CartDto>(detailsTosend.Result.ToString());
+                data.CartHeaderDto.Email = userEmail;
                 var responseDto =await _shoppingCartService.EmailCartRequest(data);
                 if (responseDto.Result != null)
                 {
@@ -94,6 +99,12 @@ namespace Mango.Web.Controllers
             }
             TempData["Error"] = "Something went wrong item can`t be removed.";
             return View(); 
+        }
+
+        [Authorize]
+        public async Task<IActionResult> CheckOut()
+        {
+            return View(await LoadCartDtoBasedOnLoggedInUser());
         }
     }
 }

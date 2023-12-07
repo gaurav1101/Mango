@@ -16,20 +16,20 @@ namespace Mango.Services.EmailAPI.Messaging
         private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
         private ServiceBusProcessor _emailShoppingCartProcessor;
-        private ServiceBusProcessor _registerUserProcessor;
+        //private ServiceBusProcessor _registerUserProcessor;
 
         public AzureServiceBusConsumer(IConfiguration configuration,EmailService emailService)
         {
             _emailService= emailService;
             _configuration = configuration;
             serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionStrings");
-            registerUserConnectionString = _configuration.GetValue<string>("RegisterUserConnectionStrings");
+            //registerUserConnectionString = _configuration.GetValue<string>("RegisterUserConnectionStrings");
             emailShoppingCartProcessor = _configuration.GetValue<string>("TopicsAndQueueNames:EmailShoppingCartQueue");
-            registertopicOrQueueName = _configuration.GetValue<string>("TopicsAndQueueNames:RegisterUserQueue");
+            //registertopicOrQueueName = _configuration.GetValue<string>("TopicsAndQueueNames:RegisterUserQueue");
             var client = new ServiceBusClient(serviceBusConnectionString);
-            var client2 =new ServiceBusClient(registerUserConnectionString);
+            //var client2 =new ServiceBusClient(registerUserConnectionString);
             _emailShoppingCartProcessor = client.CreateProcessor(emailShoppingCartProcessor);
-            _registerUserProcessor = client2.CreateProcessor(registertopicOrQueueName);
+           // _registerUserProcessor = client2.CreateProcessor(registertopicOrQueueName);
 
         }
 
@@ -39,9 +39,9 @@ namespace Mango.Services.EmailAPI.Messaging
             _emailShoppingCartProcessor.ProcessErrorAsync += ErrorHandler;
             await _emailShoppingCartProcessor.StartProcessingAsync();
 
-            _registerUserProcessor.ProcessMessageAsync += onNewRegisteredUserRecieved;
-            _registerUserProcessor.ProcessErrorAsync += ErrorHandler;
-            await _registerUserProcessor.StartProcessingAsync();
+            //_registerUserProcessor.ProcessMessageAsync += onNewRegisteredUserRecieved;
+            //_registerUserProcessor.ProcessErrorAsync += ErrorHandler;
+            //await _registerUserProcessor.StartProcessingAsync();
         }
 
         private Task ErrorHandler(ProcessErrorEventArgs arg)
@@ -86,8 +86,8 @@ namespace Mango.Services.EmailAPI.Messaging
             await _emailShoppingCartProcessor.StopProcessingAsync();
             await _emailShoppingCartProcessor.DisposeAsync();
 
-            await _registerUserProcessor.StopProcessingAsync();
-            await _registerUserProcessor.DisposeAsync();
+           // await _registerUserProcessor.StopProcessingAsync();
+            //await _registerUserProcessor.DisposeAsync();
         }
     }
 }

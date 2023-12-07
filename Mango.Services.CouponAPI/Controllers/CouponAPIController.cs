@@ -85,7 +85,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         // POST api/<CouponAPIController>
         [HttpPost]
-        [Authorize(AuthenticationSchemes = "Bearer" ,Roles ="Admin")]
+        //[Authorize(AuthenticationSchemes = "Bearer" ,Roles ="Admin")]
         public ResponseDto Post(CouponDto couponDto)
         {
             try

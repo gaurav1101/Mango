@@ -3,6 +3,7 @@
 {
     <form method="post" asp-action="EmailCartRequest" asp-controller="Cart">
     <input asp-for="CartHeaderDto.CartHeaderId" hidden />
+        <input asp-for="CartHeaderDto.UserId" hidden />
     <br />
     <div class="">
         <div class="card border mt-4 container">
@@ -62,11 +63,11 @@
                     <div class="col-6">
                         <span>Coupon:</span>
                         <input asp-for="@Model.CartHeaderDto.CouponCode"  />
-                        <button type="submit" asp-controller="Cart" asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
+                            <button type="submit"  asp-controller="Cart" asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
                     </div>
                     <div class="col-6 text-end">
-                        <span class="text-danger" style="font-size:21px;">  Order Total : @Model.CartHeaderDto.CartTotal<br /></span>
-                        <span class="text-success"> Order Discount :  @Model.CartHeaderDto.Discount</span>
+                            <span class="text-danger" style="font-size:21px;">  Order Total : @Model.CartHeaderDto.CartTotal.ToString("c")<br /></span>
+                            <span class="text-success"> Order Discount :  @Model.CartHeaderDto.Discount.ToString("c")</span>
                     </div>
                 </div>
             </div>
@@ -75,7 +76,7 @@
                         <button type="submit"  class="btn btn-outline-danger form-control" value="Submit">Email Cart</button>
                 </div>
                 <div class="col-6 col-md-3 offset-md-6">
-                    <button disabled class="btn btn-success form-control ">Checkout (Comming Soon!) </button>
+                    <a asp-action="checkout" asp-route-userId="@Model.CartHeaderDto.UserId" class="btn btn-success form-control ">Looks Good? </a>
                 </div>
             </div>
         </div>
@@ -86,3 +87,9 @@ else
 {
     <h2>Please Add items to the cart.</h2>
 }
+
+  <script>
+    function setText(){
+            document.getElementById('txtBoxId').value = 'watever'; 
+   }
+</script>

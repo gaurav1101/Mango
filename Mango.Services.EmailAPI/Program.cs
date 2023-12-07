@@ -18,7 +18,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseSqlSer
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-//from line-23 to 25 explanations
+//from line-28 to 30 explanations
 // Because We want to consume and prosess our emails from azureServiceBus we have created AzureServiceBusConsumer.cs
 // and in lie 16 we have scoped it singleton bcoz we want it up to consume email everytime and save email to db.
 //so to consume ApplicationDbContext into AzureServiceBusConsumer.cs we need an singleton scopped appDbcontext as well

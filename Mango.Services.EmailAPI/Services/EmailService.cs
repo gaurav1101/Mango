@@ -29,7 +29,7 @@ namespace Mango.Services.EmailAPI.Services
                 message.AppendLine("</li>");
             }
             message.AppendLine("</ul>");
-            await LogAndEmail(message.ToString(),cartDto.CartHeaderDto.Email);
+            await LogAndEmail(message.ToString(), cartDto.CartHeaderDto.Email);
         }
 
         public async Task RegisteredUserEmailAndLog(string email)
