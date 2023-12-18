@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Mango.ServiceBus\Mango.ServiceBus.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\" />
+  </ItemGroup>
+
 </Project>

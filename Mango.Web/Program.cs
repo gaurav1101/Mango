@@ -20,10 +20,12 @@ builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 Mango.Web.Utility.SD.CouponAPIBaseUrl = builder.Configuration["ServiceUrls:CouponAPI"];
 Mango.Web.Utility.SD.AuthAPIBaseUrl = builder.Configuration["ServiceUrls:AuthAPI"];
 Mango.Web.Utility.SD.ProductAPIBaseUrl = builder.Configuration["ServiceUrls:ProductAPI"];
 Mango.Web.Utility.SD.ShoppingCartAPIBaseUrl = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
+Mango.Web.Utility.SD.OrderAPIBaseUrl = builder.Configuration["ServiceUrls:OrderAPI"];
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
               {

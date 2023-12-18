@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mango.Services.OrderAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20231207050040_Add_Order_table")]
-    partial class Add_Order_table
+    [Migration("20231211045534_OrderTablesAdded")]
+    partial class OrderTablesAdded
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,7 +52,7 @@ namespace Mango.Services.OrderAPI.Migrations
 
                     b.HasIndex("OrderHeaderId");
 
-                    b.ToTable("OredrDetails");
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderHeader", b =>

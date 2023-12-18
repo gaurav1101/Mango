@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
+using Stripe;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -92,12 +94,23 @@ namespace Mango.Services.CouponAPI.Controllers
             {
                 if (couponDto == null)
                 {
+
                     _response.IsSuccess = false;
                     _response.Error = "Enter some valid values";
                     return _response;
                 }
+                StripeConfiguration.ApiKey = "sk_test_51OM28kSFrpBxnPQ23HGmoTOrpqMsUt27DULatAA3Ut72V1Y92j9hDeDcZQ39gLVeAS7Gqu6gVWiUzQ7kBM2pg4GC00cOCUEwpQ";
 
-                _dBContext.Coupons.Add(_mapper.Map<Coupon>(couponDto));
+                var options = new CouponCreateOptions
+                {
+                    AmountOff=(long)couponDto.DiscountAmount*100,
+                    Id= couponDto.CouponCode,
+                    Name = couponDto.CouponCode,
+                    Currency="usd",
+                };
+                var service = new CouponService();
+                service.Create(options);
+                _dBContext.Coupons.Add(_mapper.Map<Models.Coupon>(couponDto));
                 _dBContext.SaveChanges();
                 _response.Result = couponDto;
                 return _response;
@@ -122,7 +135,7 @@ namespace Mango.Services.CouponAPI.Controllers
                     _response.Error = "Please enter valid data";
                     return _response;
                 }
-                _dBContext.Coupons.Update(_mapper.Map<Coupon>(couponDto));
+                _dBContext.Coupons.Update(_mapper.Map<Models.Coupon>(couponDto));
                 _dBContext.SaveChanges();
                 _response.Result= couponDto;
                 return _response;
@@ -137,7 +150,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         // DELETE api/<CouponAPIController>/5
         [HttpDelete("{id}")]
-		[Authorize("ADMIN")]
+		//[Authorize("ADMIN")]
 		public ResponseDto Delete(int id)
         {
             try
@@ -153,6 +166,8 @@ namespace Mango.Services.CouponAPI.Controllers
                 {
                     _dBContext.Coupons.Remove(data);
                     _dBContext.SaveChanges();
+                    var service = new CouponService();
+                    service.Delete(data.CouponCode);
                     _response.Result = _mapper.Map<CouponDto>(data );
                 }
                 return _response;

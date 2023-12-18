@@ -66,7 +66,7 @@ namespace Mango.Services.CouponAPI.Controllers
             }
 
             //apply coupon if any
-            if (string.IsNullOrEmpty(cartDto.CartHeaderDto.CouponCode))
+            if (!string.IsNullOrEmpty(cartDto.CartHeaderDto.CouponCode))
             {
                 CouponDto couponDto = await _couponService.GetCoupon(cartDto.CartHeaderDto.CouponCode);
                 if (couponDto != null && cartDto.CartHeaderDto.CartTotal > couponDto.MinimumAmount)

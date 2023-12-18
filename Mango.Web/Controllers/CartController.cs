@@ -1,6 +1,8 @@
 ﻿using Mango.ServiceBus;
 using Mango.Web.Models;
+using Mango.Web.Models.Dto;
 using Mango.Web.Services.IService;
+using Mango.Web.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Amqp.Framing;
@@ -13,12 +15,12 @@ namespace Mango.Web.Controllers
     public class CartController : Controller
     {
         private readonly IShoppingCartService _shoppingCartService;
-       
+        private readonly IOrderService _orderService;
 
-        public CartController(IShoppingCartService shoppingCartService)
+        public CartController(IShoppingCartService shoppingCartService,IOrderService orderService)
         {
             _shoppingCartService = shoppingCartService;
-            
+            _orderService = orderService;
         }
         [Authorize]
         public async Task<IActionResult> CartIndex()
@@ -43,11 +45,12 @@ namespace Mango.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ApplyCoupon(string coupon)
+        public async Task<IActionResult> ApplyCoupon(CartDto cartDto)
         {
             var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
            var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
             var data = JsonConvert.DeserializeObject<CartDto>(detailsTosend.Result.ToString());
+            data.CartHeaderDto.CouponCode = cartDto.CartHeaderDto.CouponCode;
             var responseDto = await _shoppingCartService.ApplyCouponAsync(data);
             if (responseDto != null)
             {
@@ -101,10 +104,60 @@ namespace Mango.Web.Controllers
             return View(); 
         }
 
-        [Authorize]
+        //[Authorize]
+        [HttpGet]
         public async Task<IActionResult> CheckOut()
         {
             return View(await LoadCartDtoBasedOnLoggedInUser());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckOut(CartDto cartDto)
+        {
+            try
+            {
+                CartDto res = await LoadCartDtoBasedOnLoggedInUser();
+                res.CartHeaderDto.phone = cartDto.CartHeaderDto.phone;
+                res.CartHeaderDto.Name = cartDto.CartHeaderDto.Name;
+                res.CartHeaderDto.Email = cartDto.CartHeaderDto.Email;
+                var response = await _orderService.CreateOrderAsync(res);
+                if (response.Result != null)
+                {
+                    var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                    OrderHeaderDto cart = JsonConvert.DeserializeObject<OrderHeaderDto>(response.Result.ToString());
+                    var stripeRequest = new StripeRequestDto
+                    {
+                        orderHeaderDto = cart,
+                        ApprovedUrl = domain + "Cart/OrderConfirmation/orderId=" + cart.OrederHeaderId,
+                        CancelUrl = domain + "Cart/CheckOut"
+                    };
+                    var stripeSession = await _orderService.CreateStripeSessionAsync(stripeRequest);
+                    StripeRequestDto stripeRequestDto = JsonConvert.DeserializeObject<StripeRequestDto>(stripeSession.Result.ToString());
+                    Response.Headers.Add("Location", stripeRequestDto.StripeSessionUrl);
+                    
+                }
+                return new StatusCodeResult(303);
+            }
+            catch (Exception e)
+            {
+                return new StatusCodeResult(400);
+            }
+           
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderConfirmation(int orderId)
+        {
+            var response =await _orderService.ValidateStripeSession(orderId);
+            if(response.Result != null)
+            {
+                OrderHeaderDto orderHeaderDto = JsonConvert.DeserializeObject<OrderHeaderDto>(response.Result.ToString());
+                if (orderHeaderDto.Status == SD.Approved)
+                {
+                    return View(orderId);
+                }
+            }
+            return View(orderId);
         }
     }
 }

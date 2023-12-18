@@ -6,7 +6,8 @@ using Newtonsoft.Json;
 
 namespace Mango.Web.Controllers
 {
-    public class CouponController : Controller
+	//[Authorize(Roles = "Admin")]
+	public class CouponController : Controller
     {
         private readonly ICouponService _couponService;
 		private readonly ITokenProvider _tokenProvider;
@@ -42,7 +43,7 @@ namespace Mango.Web.Controllers
             }
         }
 
-        [Authorize()]
+       [Authorize]
         public async Task<IActionResult> CreateCoupon()
         {
             return View();
@@ -75,7 +76,7 @@ namespace Mango.Web.Controllers
             }
         }
 
-        [Authorize()]
+        [Authorize]
         public async Task<IActionResult> RemoveCoupon(int couponId)
 		{
             try
@@ -103,6 +104,7 @@ namespace Mango.Web.Controllers
 		}
 
 		[HttpPost]
+        [Authorize]
         public async Task<IActionResult> RemoveCoupon(CouponDto couponDto)
         {
             try

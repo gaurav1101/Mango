@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Mango.Services.OrderAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_Order_table : Migration
+    public partial class OrderTablesAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,7 @@ namespace Mango.Services.OrderAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OredrDetails",
+                name: "OrderDetails",
                 columns: table => new
                 {
                     OrderDetailsId = table.Column<int>(type: "int", nullable: false)
@@ -47,9 +47,9 @@ namespace Mango.Services.OrderAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OredrDetails", x => x.OrderDetailsId);
+                    table.PrimaryKey("PK_OrderDetails", x => x.OrderDetailsId);
                     table.ForeignKey(
-                        name: "FK_OredrDetails_OrderHeaders_OrderHeaderId",
+                        name: "FK_OrderDetails_OrderHeaders_OrderHeaderId",
                         column: x => x.OrderHeaderId,
                         principalTable: "OrderHeaders",
                         principalColumn: "OrederHeaderId",
@@ -57,8 +57,8 @@ namespace Mango.Services.OrderAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OredrDetails_OrderHeaderId",
-                table: "OredrDetails",
+                name: "IX_OrderDetails_OrderHeaderId",
+                table: "OrderDetails",
                 column: "OrderHeaderId");
         }
 
@@ -66,7 +66,7 @@ namespace Mango.Services.OrderAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OredrDetails");
+                name: "OrderDetails");
 
             migrationBuilder.DropTable(
                 name: "OrderHeaders");

@@ -49,7 +49,7 @@ namespace Mango.Services.OrderAPI.Migrations
 
                     b.HasIndex("OrderHeaderId");
 
-                    b.ToTable("OredrDetails");
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("Mango.Services.OrderAPI.Models.OrderHeader", b =>
