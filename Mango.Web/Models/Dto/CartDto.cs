@@ -6,5 +6,6 @@ namespace Mango.Web.Models
     {
         public CartHeaderDto CartHeaderDto { get; set; }
         public IEnumerable<CartDetailsDto> CartDetailsDtos { get; set; }
+        public CouponDto? coupondto { get; set; }
     }
 }

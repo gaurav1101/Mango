@@ -1,8 +1,10 @@
 ﻿using Mango.Web.Models;
+using Mango.Web.Services;
 using Mango.Web.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Mango.Web.Controllers
 {
@@ -11,10 +13,12 @@ namespace Mango.Web.Controllers
     {
         private readonly ICouponService _couponService;
 		private readonly ITokenProvider _tokenProvider;
+        private readonly IShoppingCartService _shoppingCartService;
 		ResponseDto _response;
-        public CouponController(ICouponService couponService)
+        public CouponController(ICouponService couponService,IShoppingCartService shoppingCartService)
         {
             _couponService = couponService;
+            _shoppingCartService= shoppingCartService;
              _response = new ResponseDto();
             
         }
@@ -43,7 +47,55 @@ namespace Mango.Web.Controllers
             }
         }
 
-       [Authorize]
+		[HttpPost]
+		public async Task<IActionResult> ApplyCoupon(string couponCode)
+		{
+			var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+            var coupons = await _couponService.GetCouponAsync(couponCode);
+			CouponDto coupon = JsonConvert.DeserializeObject<CouponDto>(coupons.Result.ToString());
+			var detailsTosend = await _shoppingCartService.GetCartByUserIdAsync(user);
+			var data = JsonConvert.DeserializeObject<CartDto>(detailsTosend.Result.ToString());
+            data.CartHeaderDto.CouponCode = coupon.CouponCode;
+			var responseDto = await _shoppingCartService.ApplyCouponAsync(data);
+			if (responseDto != null)
+			{
+				CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
+				TempData["Success"] = "Discount Coupon Applied";
+                
+				return RedirectToPage("Cart/CartIndex", data);
+			}
+			return RedirectToPage("CartIndex", data);
+		}
+
+		//[HttpGet]
+
+		//private async Task<IActionResult> GetEligibleCouponForUser(int total)
+		//{
+		//	try
+		//	{
+
+		//		IEnumerable<CouponDto> couponDtos;
+		//		var coupons = await _couponService.GetAllCouponsAsync();
+		//		if (coupons.IsSuccess && coupons.Result != null)
+		//		{
+		//			couponDtos = JsonConvert.DeserializeObject<List<CouponDto>>(coupons.Result.ToString());
+		//                  foreach(var data in couponDtos)
+		//                  {
+		//                      if(data.MinimumAmount>)
+		//                  }
+		//			return View(couponDtos);
+		//		}
+		//		TempData["error"] = coupons.Error.ToString();
+		//		couponDtos = new List<CouponDto>();
+		//		return View(couponDtos);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return View(ex);
+		//	}
+		//}
+
+		[Authorize]
         public async Task<IActionResult> CreateCoupon()
         {
             return View();

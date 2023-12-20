@@ -30,8 +30,8 @@ namespace Mango.Web.Services
             return await _baseService.sendAsync(new Models.Dto.RequestDto()
             {
                 ApiType = SD.ApiTypes.GET,
-                Data = couponCode,
-                url = SD.CouponAPIBaseUrl + "/api/CouponAPI",
+                Data = "",
+                url = SD.CouponAPIBaseUrl + "/api/CouponAPI/GetByCode/"+couponCode,
                 token = ""
             });
         }
@@ -79,5 +79,15 @@ namespace Mango.Web.Services
                 token = ""
             });
         }
-    }
+
+		public async Task<ResponseDto> ApplyCouponAsync(CartDto cartDto)
+		{
+			return await _baseService.sendAsync(new Models.Dto.RequestDto()
+			{
+				ApiType = SD.ApiTypes.POST,
+				Data = cartDto,
+				url = SD.ShoppingCartAPIBaseUrl + "/api/ShoppingCartAPI/ApplyCoupon",
+			});
+		}
+	}
 }

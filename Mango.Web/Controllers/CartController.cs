@@ -9,6 +9,7 @@ using Microsoft.Azure.Amqp.Framing;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.RegularExpressions;
 
 namespace Mango.Web.Controllers
 {
@@ -30,17 +31,31 @@ namespace Mango.Web.Controllers
 
         public async Task<CartDto> LoadCartDtoBasedOnLoggedInUser()
         {
-            var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
-            //var email = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
-            //var name = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Name)?.FirstOrDefault()?.Value;
-            //var phone
-            var responseDto = await _shoppingCartService.GetCartByUserIdAsync(user);
-            if (responseDto.Result != null)
+            try
             {
-                CartDto response=JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
-                TempData["Success"] = "Cart Loaded";
-                return response;
+                var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
+                //var email = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Email)?.FirstOrDefault()?.Value;
+                //var name = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Name)?.FirstOrDefault()?.Value;
+                //var phone
+                var responseDto = await _shoppingCartService.GetCartByUserIdAsync(user);
+                if (responseDto.Result != null && responseDto.Error==null)
+                {
+                    CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
+                    TempData["Success"] = "Cart Loaded";
+                    return response;
+                }
+                else
+                {
+                    CartDto response = JsonConvert.DeserializeObject<CartDto>(responseDto.Result.ToString());
+                    TempData["Error"] = responseDto.Error;
+                    return response;
+                }
             }
+            catch (Exception e)
+            {
+                TempData["Error"] = e.Message;
+            }
+           
             return new CartDto();
         }
 

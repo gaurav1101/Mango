@@ -45,7 +45,7 @@
                             <div style="font-size:11px;">@item.Product.Description</div>
                         </div>
                         <div class="col-3 col-md-2 pt-md-4" style="font-size:11px;">
-                            <span style="font-size:17px;">@item.Product.Price </span>
+                            <span style="font-size:17px;">@item.Product.Price.ToString("c") </span>
                         </div>
                         <div class="col-3 col-md-2 pt-md-4" style="font-size:11px;">
                             <span style="font-size:17px;">@item.Count</span>
@@ -60,11 +60,22 @@
                 
                 <hr />
                 <div class="row">
-                    <div class="col-6">
-                        <span>Coupon:</span>
-                        <input asp-for="@Model.CartHeaderDto.CouponCode"  />
-                            <button type="submit" asp-controller="Cart" asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
-                    </div>
+                        @if (Model.CartHeaderDto.CartTotal > 100)
+                        {
+                            <div class="col-6">
+                                <span>Coupon:</span>
+                                <input asp-for="@Model.CartHeaderDto.CouponCode" />
+                                <button type="submit" asp-controller="Cart" asp-action="ApplyCoupon" class="btn btn-sm btn-success"> Apply </button>
+                                <a asp-action="CouponIndex" asp-controller="Coupon" asp-route-total="@Model.CartHeaderDto.CartTotal" class="btn btn-success form-control ">View Coupons </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-6">
+                               <h4>Add min 100$ of item to apply for coupons.</h4>
+                            </div>
+                        }
+
                     <div class="col-6 text-end">
                             <span class="text-danger" style="font-size:21px;">  Order Total : @Model.CartHeaderDto.CartTotal.ToString("c")<br /></span>
                             <span class="text-success"> Order Discount :  @Model.CartHeaderDto.Discount.ToString("c")</span>

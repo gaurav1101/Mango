@@ -11,10 +11,15 @@
 		<div class="row pb-3">
 			<div class="col-6">
 			</div>
-			<div class="col-6 text-end">
-				<a asp-action="CreateCoupon" class="btn btn-outline-primary"><i class="bi bi-plus-square"></i> Create New Coupon</a>
+			  @if(User.Claims.First().Type.ToString()=="Admin")
+			  {
+				<div class="col-6 text-end">
+					<a asp-action="CreateCoupon" class="btn btn-outline-primary"><i class="bi bi-plus-square"></i> Create New Coupon</a>
 
-			</div>
+				</div>
+			}
+			
+
 		</div>
 		<table class="table">
 			<thead>
@@ -45,9 +50,22 @@
 					</td>
 
 					<td>
+							@if (User.Claims.First().Type.ToString() == "Admin")
+							{
 							<a class="btn btn-danger" asp-controller="Coupon" asp-action="RemoveCoupon" asp-route-couponId="@item.CouponId">
 							<i class="bi bi-trash"></i>
-						</a>
+							</a>
+							}
+							else
+							{
+								<form asp-controller="Coupon" asp-action="ApplyCoupon" method="post">
+									<div class="col-6 text-end">
+										<input type="hidden" name="couponCode" value="@item.CouponCode" />
+										<button type="submit" class="btn btn-outline-primary"><i class="bi bi-plus-square"></i> Use Coupon</button>
+									</div>
+								</form>
+
+							}
 					</td>
 				</tr>
 				}

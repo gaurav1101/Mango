@@ -73,10 +73,20 @@ namespace Mango.Services.CouponAPI.Controllers
                 {
                     cartDto.CartHeaderDto.CartTotal -= couponDto.MinimumAmount;
                     cartDto.CartHeaderDto.Discount = couponDto.DiscountAmount;
+                    _response.Result = cartDto;
                 }
+                else
+                {
+                    _response.Result = cartDto;
+                    _response.Error = "Coupon cannot be applied Min order value must be atleast " + couponDto.MinimumAmount;
+                }
+               
             }
-
-            _response.Result = cartDto;
+            else
+            {
+                _response.Result = cartDto;
+            }
+            
             return _response;
         }
 
