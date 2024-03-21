@@ -19,7 +19,7 @@ namespace Mango.Services.OrderAPI
                     .ForMember(dest => dest.orderDetails, u => u.MapFrom(src => src.orderDetailsdto)).ReverseMap();
                     // config.CreateMap<CartDetails, CartDto>().ReverseMap();
                     config.CreateMap<OrderHeaderDto, CartHeaderDto>()
-                         .ForMember(dest => dest.CartTotal, u => u.MapFrom(src => src.OrderTotal)).ReverseMap();
+                         .ForMember(dest => dest.CartTotal, u => u.MapFrom(src => src.CartTotal)).ReverseMap();
 
                     config.CreateMap<CartDetailsDto, OrderDetailsDto>()
                     .ForPath(dest => dest.ProductName, u => u.MapFrom(src => src.Product.Name))

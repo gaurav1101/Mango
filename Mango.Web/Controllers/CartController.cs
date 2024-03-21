@@ -160,8 +160,8 @@ namespace Mango.Web.Controllers
            
         }
 
-        [HttpGet]
-        public async Task<IActionResult> OrderConfirmation(int orderId)
+        [HttpGet("Cart/OrderConfirmation/orderId={orderId}")]
+		public async Task<IActionResult> OrderConfirmation(int orderId)
         {
             var response =await _orderService.ValidateStripeSession(orderId);
             if(response.Result != null)

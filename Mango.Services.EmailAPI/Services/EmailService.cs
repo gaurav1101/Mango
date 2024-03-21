@@ -32,7 +32,15 @@ namespace Mango.Services.EmailAPI.Services
             await LogAndEmail(message.ToString(), cartDto.CartHeaderDto.Email);
         }
 
-        public async Task RegisteredUserEmailAndLog(string email)
+		public async Task emailRewardAndLog(RewardDto rewardDto)
+		{
+			StringBuilder message = new StringBuilder();
+			message.AppendLine("<br/> You have earned new reward points " + rewardDto.RewardsActivity);
+
+			await LogAndEmail(message.ToString(), "admin@gmail.com");
+		}
+
+		public async Task RegisteredUserEmailAndLog(string email)
         {
             StringBuilder message = new StringBuilder();
             message.AppendLine("<br/> New User Created " + email);

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Mango.ServiceBus;
 using Mango.Services.OrderAPI;
 using Mango.Services.OrderAPI.Data;
 using Mango.Services.OrderAPI.Services;
@@ -34,7 +35,7 @@ builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
-//builder.Services.AddScoped<IMessageBus, MessageBus>();
+builder.Services.AddScoped<IMessageBus, MessageBus>();
 builder.Services.AddDbContext<ApplicationDBContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));

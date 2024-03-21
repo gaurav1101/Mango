@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Mango.ServiceBus;
 using Mango.Services.OrderAPI.Data;
 using Mango.Services.OrderAPI.Models;
 using Mango.Services.OrderAPI.Models.Dto;
 using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Stripe;
 using Stripe.Checkout;
@@ -18,12 +20,14 @@ namespace Mango.Services.OrderAPI.Controllers
     {
         private readonly ApplicationDBContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IMessageBus _messageBus;
         public ResponseDto _responseDto;
 
-        public OrderAPIController(ApplicationDBContext dBContext,IMapper mapper)
+        public OrderAPIController(ApplicationDBContext dBContext,IMapper mapper,IMessageBus messageBus)
         {
             _dbContext = dBContext;
             _mapper = mapper;
+            _messageBus= messageBus;
             _responseDto=new ResponseDto();
 
         }
@@ -59,8 +63,106 @@ namespace Mango.Services.OrderAPI.Controllers
         }
 
 
-        //Process the stripe request
-        [HttpPost("CreateStripeSession")]
+        //get all orders
+        [Authorize]
+		[HttpGet("GetOrders")]
+		public ActionResult<ResponseDto> GetOrders(string? userId="")
+		{
+			try
+			{
+                IEnumerable<OrderHeader> orders;
+
+				if (User.IsInRole("ADMIN"))
+                {
+				    orders = _dbContext.OrderHeaders.Include(u => u.orderDetails).Where(u=>u.UserId==userId);
+					_responseDto.Result = _mapper.Map<IEnumerable<OrderHeaderDto>>(orders);
+					_responseDto.IsSuccess = true;
+					_responseDto.StatusCode = Convert.ToString(StatusCode(200));
+				}
+                else
+{
+                    _responseDto.Error = "unauthorize";
+                }
+                
+				return _responseDto;
+			}
+			catch (Exception ex)
+			{
+				_responseDto.IsSuccess = false;
+				_responseDto.Result = ex;
+
+			}
+			return _responseDto;
+		}
+
+		[Authorize]
+		[HttpGet("GetOrderById/{Id:int}")]
+		public ActionResult<ResponseDto> GetOrderById(int Id)
+		{
+			try
+			{
+				if (User.IsInRole("ADMIN"))
+				{
+                    OrderHeader orders = _dbContext.OrderHeaders.Include(u => u.orderDetails).First(u=>u.OrederHeaderId==Id);
+					_responseDto.Result = _mapper.Map<OrderHeaderDto>(orders);
+					_responseDto.IsSuccess = true;
+					_responseDto.StatusCode = Convert.ToString(StatusCode(200));
+				}
+				else
+				{
+					_responseDto.Error = "unauthorize";
+				}
+
+				return _responseDto;
+			}
+			catch (Exception ex)
+			{
+				_responseDto.IsSuccess = false;
+				_responseDto.Result = ex;
+
+			}
+			return _responseDto;
+		}
+
+		[Authorize]
+		[HttpPost("UpdateOrderStatus/{orderid:int}")]
+		public async Task<ActionResult<ResponseDto>> UpdateOrderStatus(int orderid, [FromBody] string newStatus)
+		{
+			try
+			{
+                var order = _dbContext.OrderHeaders.First(u=>u.OrederHeaderId==orderid);
+                if (order != null)
+                {
+                    if (newStatus == "Cancelled")
+                    {
+                        var options = new RefundCreateOptions
+                        {
+                            Reason = RefundReasons.RequestedByCustomer,
+                            PaymentIntent = order.PaymentIntentId
+                        };
+                        var service= new RefundService();
+                        Refund refund = service.Create(options);
+                    };
+                    order.Status = newStatus;
+                    _dbContext.SaveChanges();
+				}
+				
+
+				//return _responseDto;
+			}
+			catch (Exception ex)
+			{
+				_responseDto.IsSuccess = false;
+				_responseDto.Result = ex;
+
+			}
+			return _responseDto;
+		}
+
+
+
+		//Process the stripe request
+		[HttpPost("CreateStripeSession")]
         public ActionResult<ResponseDto> CreateStripeSession(StripeRequestDto stripeRequestDto)
         {
             try
@@ -114,6 +216,7 @@ namespace Mango.Services.OrderAPI.Controllers
                 orderHeader.StripeSessionId = session.Id;
                 _dbContext.OrderHeaders.Update(orderHeader);
                 _dbContext.SaveChanges();
+             
                 _responseDto.Result = stripeRequestDto;
             }
             catch(Exception e)
@@ -147,7 +250,16 @@ namespace Mango.Services.OrderAPI.Controllers
                     orderHeader.Status = SD.Approved;
                   //  _dbContext.OrderHeaders.Update(orderHeader);
                     _dbContext.SaveChanges();
-                    _responseDto.Result = _mapper.Map<OrderHeaderDto>(orderHeader);
+
+					//to provide rewards after the payment is done 
+					RewardsDto rewardsDto = new RewardsDto
+					{
+						UserId = orderHeader.UserId,
+						RewardsActivity = Convert.ToInt32(orderHeader.CartTotal), //for 10$ 10 reward points
+						OrderId = orderHeader.OrederHeaderId
+					};
+                    _messageBus.publishMessage(rewardsDto, "ordercreated");
+					_responseDto.Result = _mapper.Map<OrderHeaderDto>(orderHeader);
                 }
               
             }

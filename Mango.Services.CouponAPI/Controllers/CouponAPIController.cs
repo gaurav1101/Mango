@@ -22,6 +22,7 @@ namespace Mango.Services.CouponAPI.Controllers
         private readonly ApplicationDBContext _dBContext;
         private ResponseDto _response;
         private readonly IMapper _mapper;
+        //private  readonly ILogger _logger;
         public CouponAPIController(ApplicationDBContext dBContext, IMapper mapper) 
         { 
             _response= new ResponseDto();

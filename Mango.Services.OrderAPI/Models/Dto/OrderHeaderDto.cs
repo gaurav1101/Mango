@@ -7,7 +7,7 @@ namespace Mango.Services.OrderAPI.Models.Dto
         public int OrederHeaderId { get; set; }
         public string? UserId { get; set; }
         public double Discount { get; set; }
-        public double OrderTotal { get; set; }
+        public double CartTotal { get; set; }
         public string? Email { get; set; }
         public string? Name { get; set; }
         public string? phone { get; set; }

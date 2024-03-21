@@ -7,7 +7,8 @@ using Newtonsoft.Json;
 
 namespace Mango.Web.Controllers
 {
-    public class ProductController : Controller
+	[Authorize(Roles = "Admin")]
+	public class ProductController : Controller
     {
         private readonly IProductService _productService;
 		private readonly ITokenProvider _tokenProvider;

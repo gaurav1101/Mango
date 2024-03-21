@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Mango.Web.Controllers
 {
-	//[Authorize(Roles = "Admin")]
+	
 	public class CouponController : Controller
     {
         private readonly ICouponService _couponService;
@@ -24,8 +24,8 @@ namespace Mango.Web.Controllers
         }
 
         [HttpGet]
-        
-        public async Task<IActionResult> CouponIndex()
+		
+		public async Task<IActionResult> CouponIndex()
         {
             try
             {
@@ -48,6 +48,7 @@ namespace Mango.Web.Controllers
         }
 
 		[HttpPost]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> ApplyCoupon(string couponCode)
 		{
 			var user = User.Claims.Where(u => u.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value;
@@ -95,8 +96,9 @@ namespace Mango.Web.Controllers
 		//	}
 		//}
 
-		[Authorize]
-        public async Task<IActionResult> CreateCoupon()
+		//[Authorize]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> CreateCoupon()
         {
             return View();
         }
@@ -156,8 +158,8 @@ namespace Mango.Web.Controllers
 		}
 
 		[HttpPost]
-        [Authorize]
-        public async Task<IActionResult> RemoveCoupon(CouponDto couponDto)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> RemoveCoupon(CouponDto couponDto)
         {
             try
             {

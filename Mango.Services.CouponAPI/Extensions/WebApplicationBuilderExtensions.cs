@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Mango.Services.CouponAPI.Extensions
-{
+{ 
 	public static class WebApplicationBuilderExtensions
 	{
 		public static WebApplicationBuilder AddAppAuthentication(this WebApplicationBuilder builder)
