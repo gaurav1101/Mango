@@ -30,7 +30,7 @@ namespace Mango.Services.AuthAPI.Controllers
             var user = await _authService.Register(registerationRequestDto);
             if (user.Result != null)
             {
-                await _messageBus.publishMessage("Test Email", _configuration.GetValue<string>("ServiceBusConfig:ServiecBusName"));
+                await _messageBus.publishMessage("Test Email",_configuration.GetValue<string>("ServiceBusConfig:ServiecBusName"));
                 _response.StatusCode = HttpStatusCode.OK.ToString();
                 _response.Result = user.Result;
                 _response.IsSuccess = true;
